@@ -18,8 +18,12 @@ const agregarEstudiante = async () => {
     try {
         const agregarRegistro = {
             text: "insert into estudiantes (nombre, rut, curso, nivel) values ($1, $2, $3, $4) RETURNING *;",
-            values: ['Constanza Guevara', '13.456.432-7', 'Chelo 5', 3],
-            rowMode: "array"
+            nombre: (argumentos[1]),
+            rut: (argumentos[2]),
+            curso: (argumentos[3]),
+            nivel: (argumentos[4]),
+            values: [nombre, rut, curso, nivel],
+            rowMode: "array",
         }
 
         const response = await pool.query(agregarRegistro);
@@ -53,12 +57,13 @@ const mostrarEstudiantePorRut = async () => {
     try {
         const mostrarPorRut = {
             text: "select * from estudiantes where rut = $1;",
-            value: ['13.456.432-7'],
+            rut: (argumentos[1]),
+            values: [rut],
             rowMode: "array",
         }
 
         const response = await pool.query(mostrarPorRut);
-        console.log(`Registro por rut ${mostrarPorRut.value}`, response.rows);
+        console.log(`Registro por rut ${mostrarPorRut.values}`, response.rows);
     } catch (error) {
         const { code } = error;
         console.log(`No ha sido posible mostrar al estudiante, error N°: ${code}`)
@@ -71,7 +76,11 @@ const editarEstudiante = async () => {
     try {
         const editar = {
             text: "update estudiantes set nombre = $1, rut = $2, curso = $3, nivel = $4 where nombre = $1 or rut = $2 or curso = $3 or nivel = $4 RETURNING *;",
-            values: ['Constanza Guevara', '13.456.432-7', 'Piano 3', 3]
+            nombre: (argumentos[1]),
+            rut: (argumentos[2]),
+            curso: (argumentos[3]),
+            nivel: (argumentos[4]),
+            values: [nombre, rut, curso, nivel],
         }
     
         const response = await pool.query(editar);
@@ -88,87 +97,12 @@ const eliminarEstudiante = async () => {
     try {
         const eliminar = {
             text: "delete from estudiantes where rut = $1;",
-            values: ['13.456.432-7']
+            rut: (argumentos[1]),
+            values: [rut],
         }
     
         const response = await pool.query(eliminar);
         console.log(`Registro de estudiante con rut ${eliminar.values} eliminado`);
-    } catch (error) {
-        const { code } = error;
-        console.log(`No ha sido posible eliminar al estudiante, error N°: ${code}`)
-    } finally {
-        pool.end()
-    }
-};
-
-//Consultas con texto parametrizado
-
-const agregarEstudianteText = async () => {
-    try {
-        const action = "insert into estudiantes (nombre, rut, curso, nivel) values ($1, $2, $3, $4) RETURNING *;";
-        const values = ['Constanza Guevara', '13.456.432-7', 'Chelo 5', 3]
-    
-        const response = await pool.query(action, values);
-        console.log(`Estudiante agregado con éxito`, response.rows);
-    } catch (error) {
-        const { code } = error;
-        console.log(`No ha sido posible agregar al estudiante, error N°: ${code}`)
-    } finally {
-        pool.end()
-    }
-};
-
-const mostrarEstudiantesText = async () => {
-    try {
-        const action = "select * from estudiantes;";
-
-        const response = await pool.query(action);
-        console.log("Registro actual", response.rows);
-    } catch (error) {
-        const { code } = error;
-        console.log(`No ha sido posible mostrar a los estudiantes, error N°: ${code}`)
-    } finally {
-        pool.end()
-    }
-};
-
-const mostrarEstudiantePorRutText = async () => {
-    try {
-        const action = "select * from estudiantes where rut = $1;";
-        const value = ['13.456.432-7'];
-
-        const response = await pool.query(action, value);
-        console.log(response.rows);
-    } catch (error) {
-        const { code } = error;
-        console.log(`No ha sido posible mostrar al estudiante, error N°: ${code}`)
-    } finally {
-        pool.end()
-    }
-};
-
-const editarEstudianteText = async () => {
-    try {
-        const action = "update estudiantes set nombre = $1, rut = $2, curso = $3, nivel = $4 where nombre = $1 or rut = $2 or curso = $3 or nivel = $4 RETURNING *;";
-        const values = ['Constanza Guevara', '13.456.432-7', 'Piano 3', 3];
-    
-        const response = await pool.query(action, values);
-        console.log(`Estudiante editado con éxito`, response.rows);
-    } catch (error) {
-        const { code } = error;
-        console.log(`No ha sido posible editar al estudiante, error N°: ${code}`)
-    } finally {
-        pool.end()
-    }
-};
-
-const eliminarEstudianteText = async () => {
-    try {
-        const action = "delete from estudiantes where rut = $1 RETURNING *;";
-        const values = ['13.456.432-7'];
-    
-        const response = await pool.query(action, values);
-        console.log(`Registro de estudiante con rut ${values} eliminado`, response.rows);
     } catch (error) {
         const { code } = error;
         console.log(`No ha sido posible eliminar al estudiante, error N°: ${code}`)
@@ -194,21 +128,6 @@ switch (argumentoFuncion) {
         break;
     case 'eliminarJSON':
         eliminarEstudiante();
-        break;
-    case 'nuevoText':
-        agregarEstudianteText();
-        break;
-    case 'consultaText':
-        mostrarEstudiantesText();
-        break;
-    case 'mostrarPorRutText':
-        mostrarEstudiantePorRutText();
-        break;
-    case 'editarText':
-        editarEstudianteText();
-        break;
-    case 'eliminarText':
-        eliminarEstudianteText();
         break;
 
     default:
